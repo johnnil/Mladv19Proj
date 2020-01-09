@@ -9,12 +9,11 @@ def random_walk(M, t=5):
     L = D2 @ K @ D2
 
     L_tilde = np.linalg.matrix_power(L, t)
-    D_tilde = np.diag([1/x for x in np.diag(L_tilde)])
+    D_tilde = np.diag([np.math.sqrt(1/x) for x in np.diag(L_tilde)])
 
-    D_tilde1 = np.diag([np.math.sqrt(x) for x in np.diag(D_tilde)])
     D1 = np.diag([np.math.sqrt(x) for x in np.diag(D)])
     P_t = np.linalg.matrix_power((np.linalg.inv(D) @ K), t)
 
-    K_tilde = D_tilde1 @ D1 @ P_t @ D2 @ D_tilde1
+    K_tilde = D_tilde @ D1 @ P_t @ D2 @ D_tilde
 
     return K_tilde
