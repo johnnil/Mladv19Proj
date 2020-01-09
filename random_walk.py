@@ -1,7 +1,7 @@
 import numpy as np
 from sklearn.metrics.pairwise import rbf_kernel
 
-def random_walk(M, t=1):
+def random_walk(M, t=5):
     K = rbf_kernel(M, gamma=0.55)
 
     D = np.diag([1/np.sum(row) for row in K])
@@ -18,8 +18,3 @@ def random_walk(M, t=1):
     K_tilde = D_tilde1 @ D1 @ P_t @ D2 @ D_tilde1
 
     return K_tilde
-
-
-
-
-
