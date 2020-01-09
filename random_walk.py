@@ -1,8 +1,8 @@
 import numpy as np
 from sklearn.metrics.pairwise import rbf_kernel
 
-def random_walk(M, t=5):
-    K = rbf_kernel(M, gamma=0.55)
+def random_walk(M1, M2=None, t=5, gamma=0.55):
+    K = rbf_kernel(M1, gamma=0.55)
 
     D = np.diag([1/np.sum(row) for row in K])
     D2 = np.diag([1/np.math.sqrt(x) for x in np.diag(D)])
