@@ -1,5 +1,5 @@
 import numpy as np
-from np.linalg import eig, norm
+from numpy.linalg import eig, norm
 from sklearn.metrics.pairwise import rbf_kernel, euclidean_distances
 
 
