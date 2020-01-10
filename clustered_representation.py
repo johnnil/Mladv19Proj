@@ -3,12 +3,15 @@ from numpy.linalg import eig, norm
 from sklearn.metrics.pairwise import rbf_kernel, euclidean_distances
 
 
-def kernel(x, k):
+def find_gap(l):
+    d = l[:-1] - l[1:]
+    i = d.argmax()
+    return i
+
+
+def kernel(x, k=0):
     n = len(x)
-    # x = data[None, :]
-    # xx = np.broadcast(.T, x)
-    # A = np.empty((n, n))
-    # A.flat = [rbf_kernel(xi, xj) for (xi, xj) in xx]
+    # create matrices A, D and L
     A = rbf_kernel(x, gamma=0.55)
     A[np.arange(n), np.arange(n)] = 0
     D = np.diag(A.sum(axis=0) ** (-0.5))
@@ -17,6 +20,7 @@ def kernel(x, k):
     # find eigenpairs and take the k biggest ones
     l, v = np.eig(L)
     i = np.flip(l.argsort())
+    k = k or find_gap(l[i])
     i = i[:k]
 
     # create new, normalised representation of data points
