@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 import numpy as np
 from sklearn.svm import SVC
 from sklearn.datasets import fetch_20newsgroups
@@ -42,18 +45,34 @@ def evaluate_kernel_SVM(x_labeled, x_unlabeled, x_test, y, y_test, kernel):
     return acc
 
 
+def read_data_folder(folder):
+    x = []
+    for file_name in os.listdir(folder):
+        with open(os.path.join(folder, file_name), 'r', encoding='latin-1') as f:
+            x.append(f.read())
+    return x
+
+
 def get_data():
-    x_mac, y_mac= fetch_20newsgroups(subset='all', categories=('comp.sys.mac.hardware',),
-                                     remove=('headers', 'footers', 'quotes'), return_X_y=True)
-    x_win, y_win = fetch_20newsgroups(subset='all', categories=('comp.windows.x',),
-                                     remove=('headers', 'footers', 'quotes'), return_X_y=True)
+    par_dir_list = os.listdir(Path().parent.absolute())
+    if '20news-18828' not in par_dir_list:
+        if '20news-18828.tar.gz' in par_dir_list:
+            raise FileNotFoundError('Folder 20news-18828 not found. You need to unzip 20news-18828.tar.gz')
+        else:
+            raise FileNotFoundError('Folder 20news-18828 not found.')
+
+    x_mac = read_data_folder(os.path.join(Path().absolute(), '20news-18828', 'comp.sys.mac.hardware'))
+    x_win = read_data_folder(os.path.join(Path().absolute(), '20news-18828', 'comp.windows.x'))
     data = x_mac + x_win
-    y_win[:] = 1
+
+    y_mac = np.zeros(len(x_mac))
+    y_win = np.ones(len(x_win))
     y = np.hstack((y_mac, y_win))
 
-    vect = TfidfVectorizer()
+    vect = TfidfVectorizer(min_df=4, smooth_idf=False, encoding='latin-1', norm=None)
     x = vect.fit_transform(data)
     return x, y
 
 
-x, y = get_data()
+if __name__ == '__main__':
+    x, y = get_data()
