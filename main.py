@@ -61,19 +61,22 @@ def get_data():
         else:
             raise FileNotFoundError('Folder 20news-18828 not found.')
 
+    # read data strings (hopefully this works on all OS's and in jupyter)
     x_mac = read_data_folder(os.path.join(Path().absolute(), '20news-18828', 'comp.sys.mac.hardware'))
     x_win = read_data_folder(os.path.join(Path().absolute(), '20news-18828', 'comp.windows.x'))
     data = x_mac + x_win
 
+    # data labels for each class
     y_mac = -np.ones(len(x_mac))
     y_win = np.ones(len(x_win))
-    y = np.hstack((y_mac, y_win))
 
+    # 3 or less occurances means a words is removed
     vect = TfidfVectorizer(min_df=4, smooth_idf=False, encoding='latin-1')
     vect.fit(data)
     x_mac = vect.transform(x_mac).toarray()
     x_win = vect.transform(x_win).toarray()
 
+    # shuffle each class independently
     i = np.random.permutation(np.arange(x_mac.shape[0]))
     j = np.random.permutation(np.arange(x_win.shape[0]))
     return x_mac[i], x_win[j], y_mac[i], y_win[j]
