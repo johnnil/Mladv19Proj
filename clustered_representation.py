@@ -6,7 +6,7 @@ from sklearn.metrics.pairwise import rbf_kernel, euclidean_distances
 def find_gap(l):
     d = l[:-1] - l[1:]
     i = d.argmax()
-    return i
+    return i + 1
 
 
 def kernel(x, k=0):
@@ -18,7 +18,7 @@ def kernel(x, k=0):
     L = D @ A @ D
 
     # find eigenpairs and take the k biggest ones
-    l, v = np.eig(L)
+    l, v = eig(L)
     i = np.flip(l.argsort())
     k = k or find_gap(l[i])
     i = i[:k]
