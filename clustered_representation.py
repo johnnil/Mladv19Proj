@@ -29,4 +29,4 @@ def kernel(x, k=0):
     x_ = x_ / n
 
     k = euclidean_distances(x_)
-    return x_
+    return k
