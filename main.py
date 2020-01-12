@@ -82,15 +82,34 @@ def get_data():
     return x_mac[i], x_win[j], y_mac[i], y_win[j]
 
 
-if __name__ == '__main__':
+def perform_test(kernel):
+    """
+    Perform test according to 4.3 for a given kernel.
+    :return: accuracy of the model
+    """
+    np.random.seed(424242)  # reproducibility
     x_mac, x_win, y_mac, y_win = get_data()
-    l = 50
-    x_labeled = np.vstack((x_mac[:l], x_win[:l]))
-    x_test = np.vstack((x_mac[l:], x_win[l:]))
-    y = np.hstack((y_mac[:l], y_win[:l]))
-    y_test = np.hstack((y_mac[l:], y_win[l:]))
 
-    kernel = lambda x: clustered_representation.kernel(x, 5)
-    acc = evaluate_kernel(x_labeled, np.zeros((0, x_mac.shape[1])),
-                              x_test, y, y_test, kernel)
+    # pick 1000 test points (some more tha 981 bc we have more data)
+    x_test = np.vstack((x_mac[-500:], x_win[-500:]))
+    y_test = np.hstack((y_mac[-500:], y_win[-500:]))
+    x_mac, x_win, y_mac, y_win = x_mac[:-500], x_win[:-500], y_mac[:-500], y_win[:-500]
+
+    l = 8
+    acc = [None] * 100
+    for test in range(100):
+        np.random.shuffle(x_mac)
+        np.random.shuffle(x_win)
+        x_labeled = np.vstack((x_mac[:l], x_win[:l]))
+        x_unlabeled = np.vstack((x_mac[l:], x_win[l:]))
+        y_labeled = np.hstack((y_mac[:l], y_win[:l]))
+
+        acc[test] = evaluate_kernel(x_labeled, x_unlabeled,x_test, y_labeled, y_test, kernel)
+    return acc
+
+if __name__ == '__main__':
+    kernel = lambda x: clustered_representation.kernel(x, 10)
+    acc = perform_tests(kernel)
+    print('ACCURACY!')
+    print(sum(acc) / len(acc))
     print(acc)
