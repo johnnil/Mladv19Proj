@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.linalg import eig, norm
-from sklearn.metrics.pairwise import rbf_kernel, euclidean_distances
+from sklearn.metrics.pairwise import rbf_kernel, linear_kernel
 
 
 def find_gap(l):
@@ -28,5 +28,5 @@ def kernel(x, k=0):
     n = norm(x_, axis=1, keepdims=True)
     x_ = x_ / n
 
-    k = euclidean_distances(x_)
+    k = linear_kernel(x_)
     return k
