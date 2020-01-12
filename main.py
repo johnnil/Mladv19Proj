@@ -24,7 +24,7 @@ def evaluate_kernel(x_labeled, x_unlabeled, x_test, y, y_test, kernel):
     x = np.vstack((x_labeled, x_unlabeled, x_test))
     k = kernel(x)
     k_ = k[:len(x_labeled), -len(x_test):]
-    y_prediction = np.where((y[None, :] @ k_)[0] >= 0, 1, -1)
+    y_prediction = np.where((y @ k_) >= 0, 1, -1.)
     acc = np.sum(y_prediction == y_test) / len(y_test)
     return acc
 
@@ -38,7 +38,7 @@ def evaluate_kernel_SVM(x_labeled, x_unlabeled, x_test, y, y_test, kernel):
     x = np.vstack((x_labeled, x_unlabeled, x_test))
     k = kernel(x)
 
-    svc = SVC(C=10, kernel='precomputed')
+    svc = SVC(C=5, kernel='precomputed')
     svc.fit(k[:n_train, :n_train], y)
     y_prediction = svc.predict(k[-n_test:, :n_train])
     acc = np.sum(y_prediction == y_test) / len(y_test)
