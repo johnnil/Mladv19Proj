@@ -109,6 +109,10 @@ def perform_test(kernel):
     return acc.mean(), acc.std()
 
 if __name__ == '__main__':
-    kernel = lambda x: clustered_representation.kernel(x, 10)
+    # Choose kernel
+    #kernel = lambda x: clustered_representation.kernel(x, 10)
+    kernel = lambda x: cluster_kernel.kernel(x, 10)
+    #kernel = lambda x: .kernel(x, 10)
+    #kernel = lambda x: .kernel(x, 10)
     acc_mean, acc_std = perform_test(kernel)
     print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')

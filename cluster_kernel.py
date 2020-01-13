@@ -7,7 +7,7 @@ import numpy as np
 from numpy.linalg import eig
 from sklearn.metrics.pairwise import rbf_kernel
 
-def cluster_kernel(X):
+def kernel(X, k=0):
     """
     1. As before, compute the RBF matrix K from both labeled and unlabeled
     points (this time with 1 on the diagonal and not 0) and D, the diagonal
@@ -16,16 +16,20 @@ def cluster_kernel(X):
     n = len(X)
     # Affinity matrix using RBF kernel
     A = rbf_kernel(X, gamma=0.55)
+    #print(A)
     # Set diagonal to 1
     A[np.arange(n), np.arange(n)] = 1
     # Let D be a diagonal matrix with diagonal elements equal to the sum of the rows (or the columns)
     D = np.diag(A.sum(axis=0))
+    #print(D)
 
     """
     2. Compute L and its eigendecomposition L = UAU^T.
     """
     # Compute L
-    L = (D ** (-0.5)) @ A @ (D ** (-0.5))
+    Dspecial = np.linalg.inv(D ** (0.5))
+    L = Dspecial @ A @ Dspecial
+    #print(L)
     # Eigendecomposition
     Y, U = eig(L)
     # Make U transposable
