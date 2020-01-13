@@ -111,7 +111,7 @@ def perform_test(kernel):
 if __name__ == '__main__':
     # Choose kernel
     #kernel = lambda x: clustered_representation.kernel(x, 10)
-    kernel = lambda x: cluster_kernel.kernel(x, 10)
+    kernel = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
     #kernel = lambda x: .kernel(x, 10)
     #kernel = lambda x: .kernel(x, 10)
     acc_mean, acc_std = perform_test(kernel)
