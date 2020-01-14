@@ -8,6 +8,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 import cluster_kernel
 import clustered_representation
+import random_walk
 
 
 def evaluate_kernel(x_labeled, x_unlabeled, x_test, y, y_test, kernel):
@@ -105,6 +106,7 @@ def perform_test(kernel):
         y_labeled = np.hstack((y_mac[:l], y_win[:l]))
 
         acc[test] = evaluate_kernel(x_labeled, x_unlabeled,x_test, y_labeled, y_test, kernel)
+        # acc[test] = random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
     acc = np.array(acc)
     return acc.mean(), acc.std()
 
