@@ -4,12 +4,16 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.svm import SVC
+from sklearn.semi_supervised import LabelPropagation
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+
 import cluster_kernel
 import clustered_representation
+import mixturemodel_kernels
 import random_walk
+
 
 
 def evaluate_kernel(x_labeled, x_unlabeled, x_test, y, y_test, kernel):
@@ -26,7 +30,7 @@ def evaluate_kernel(x_labeled, x_unlabeled, x_test, y, y_test, kernel):
     x = np.vstack((x_labeled, x_unlabeled, x_test))
     k = kernel(x)
     k_ = k[:len(x_labeled), -len(x_test):]
-    y_prediction = np.where((y @ k_) >= 0, 1, -1.)
+    y_prediction = np.where((y @ k_) >= 0.0, 1, -1.)
     acc = np.sum(y_prediction == y_test) / len(y_test)
     return acc
 
@@ -42,7 +46,7 @@ def evaluate_kernel_2(x_label_i, x_test, y, y_test, k):
     #x = np.vstack((x_labeled, x_unlabeled, x_test))
     #k = kernel(x)
     k_ = k[x_label_i, -len(x_test):]
-    y_prediction = np.where((y @ k_) >= 0, 1, -1.)
+    y_prediction = np.where((y @ k_) >= 0.0, 1, -1.)
     acc = np.sum(y_prediction == y_test) / len(y_test)
     return acc
 
@@ -85,6 +89,8 @@ def get_data():
     data = x_mac + x_win
 
     # data labels for each class
+    #y_mac = -np.ones(len(x_mac))
+    #y_win = np.ones(len(x_win))
     y_mac = -np.ones(len(x_mac))
     y_win = np.ones(len(x_win))
 
@@ -113,13 +119,13 @@ def perform_test(kernel, l=8):
     y_test = np.hstack((y_mac[-500:], y_win[-500:]))
     x_mac, x_win, y_mac, y_win = x_mac[:-500], x_win[:-500], y_mac[:-500], y_win[:-500]
 
-    #x_mac_i = np.arange(x_mac.shape[0])
-    #x_win_i = np.arange(x_win.shape[0])
+    x_mac_i = np.arange(x_mac.shape[0])
+    x_win_i = np.arange(x_win.shape[0])
 
-    #x_labeled = np.vstack((x_mac[:l], x_win[:l]))
-    #x_unlabeled = np.vstack((x_mac[l:], x_win[l:]))
-    #x = np.vstack((x_labeled, x_unlabeled, x_test))
-    #k = kernel(x)
+    x_labeled = np.vstack((x_mac[:l], x_win[:l]))
+    x_unlabeled = np.vstack((x_mac[l:], x_win[l:]))
+    x = np.vstack((x_labeled, x_unlabeled, x_test))
+    k = kernel(x)
 
     #l = 8
     acc = [None] * 10
@@ -164,6 +170,32 @@ def label_experiment(kernels, names=None):
     plt.legend()
     plt.show()
 
+def experemint_2(l=8):
+
+    # Experiment comparing random walk, tSVM, SVM and our cluster kernel:
+    tSVM = LabelPropagation()
+
+    np.random.seed(424242)  # reproducibility
+    x_mac, x_win, y_mac, y_win = get_data()
+    x_test = np.vstack((x_mac[-500:], x_win[-500:]))
+    y_test = np.hstack((0.0 * y_mac[-500:], y_win[-500:]))
+    x_mac, x_win, y_mac, y_win = x_mac[:-500], x_win[:-500], y_mac[:-500], y_win[:-500]
+    y_mac[:,...] = 0.0 # change -1 to zero
+    x_labeled = np.vstack((x_mac[:l], x_win[:l]))
+    x_unlabeled = np.vstack((x_mac[l:], x_win[l:]))
+
+    X = np.vstack((x_labeled, x_unlabeled))
+    y_labeled = np.hstack((y_mac[:l], y_win[:l]))
+    y_unlabeled = np.hstack((y_mac[l:], y_win[l:]))
+    y_unlabeled[:,...] = -1.0 # Set unlabeled points
+    labels = np.hstack((y_labeled, y_unlabeled))
+
+    tSVM.fit(X, labels)
+
+    acc_mean = tSVM.score(x_test, y_test)
+    print(f'accuracy = {acc_mean * 100}% ()')
+
+
 if __name__ == '__main__':
     # Choose kernel
     kernel1 = lambda x: clustered_representation.kernel(x, 10)
@@ -171,9 +203,13 @@ if __name__ == '__main__':
     kernel3 = lambda x: cluster_kernel.kernel(x, 10, "polynomial", 16)
     kernel4 = lambda x: cluster_kernel.kernel(x, 10, "step", 16)
     kernel5 = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
-    acc_mean, acc_std = perform_test(kernel1)
-    print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')
-    label_experiment([kernel1, kernel2, kernel3, kernel4, kernel5], names=["Clustered_kernel","linear","polynomial","step","ploystep"])
+
+    #kernel_gauss = lambda x : mixturemodel_kernels.marginalized_kernel(x, 10)
+    #acc_mean, acc_std = perform_test(kernel1, l=16)
+    #print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')
+    #label_experiment([kernel1, kernel2, kernel3, kernel4, kernel5], names=["Clustered_kernel","linear","polynomial","step","ploystep"])
     #label_experiment([kernel1], names=["Clustered_kernel","linear","polynomial","step","ploystep"])
+
+    experemint_2(16)
 
 
