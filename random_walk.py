@@ -60,7 +60,7 @@ def random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test, sigma=0.6, K=
     #P_post = P * np.sum(P_i_given_k, axis=1)
 
     # Prediction time
-    pred = np.array([-1 if val < 0 else 1 for val in P_post])
+    pred = np.array([0 if val < 0 else 1 for val in P_post])
     acc = np.sum(pred[-len(y_test):] == y_test) / len(y_test)
     return acc
 
