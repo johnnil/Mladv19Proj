@@ -173,26 +173,28 @@ def experemint_2(l=8):
     np.random.seed(424242)  # reproducibility
     x_mac, x_win, y_mac, y_win = get_data()
     x_test = np.vstack((x_mac[-500:], x_win[-500:]))
-    y_test = np.hstack((0.0 * y_mac[-500:], y_win[-500:]))
+    y_test = np.hstack((y_mac[-500:], y_win[-500:]))
+    y_test_tsvm = np.hstack((0.0 * y_mac[-500:], y_win[-500:]))
     x_mac, x_win, y_mac, y_win = x_mac[:-500], x_win[:-500], y_mac[:-500], y_win[:-500]
-    y_mac[:,...] = 0.0 # change -1 to zero
+    y_mac_tsvm = np.zeros((y_mac.shape)) # change -1 to zero
     x_labeled = np.vstack((x_mac[:l], x_win[:l]))
     x_unlabeled = np.vstack((x_mac[l:], x_win[l:]))
 
     X = np.vstack((x_labeled, x_unlabeled))
     y_labeled = np.hstack((y_mac[:l], y_win[:l]))
+    y_labeled_tsvm = np.hstack((y_mac_tsvm[:l], y_win[:l]))
     y_unlabeled = np.hstack((y_mac[l:], y_win[l:]))
-    y_unlabeled[:,...] = -1.0 # Set unlabeled points
-    labels = np.hstack((y_labeled, y_unlabeled))
+    y_unlabeled_tsvm = -np.ones((y_unlabeled.shape)) # Set unlabeled points
+    labels_tsvm = np.hstack((y_labeled_tsvm, y_unlabeled_tsvm))
 
-    tSVM.fit(X, labels)
+    tSVM.fit(X, labels_tsvm)
 
 
-    acc_mean = tSVM.score(x_test, y_test)
+    acc_mean = tSVM.score(x_test, y_test_tsvm)
 
     print(f'accuracy = {acc_mean * 100}% () tSVM')
 
-    acc_mean = random_walk.random_walk(x_labeled, x_unlabeled, x_test, labels, y_test)
+    acc_mean = random_walk.random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
 
     print(f'accuracy = {acc_mean * 100}% () Random Walk')
 
