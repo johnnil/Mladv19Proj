@@ -23,14 +23,12 @@ def kernel(X, k=0, kernel="linear", n=0):
     # Let D be a diagonal matrix with diagonal elements equal to the sum of the rows (or the columns)
     D = np.diag(A.sum(axis=1))
 
-    print("check step 1")
     """
     2. Compute L and its eigendecomposition L = UAU^T.
     """
     # Compute L
     Dspecial = np.linalg.inv(D ** (0.5))
     L = Dspecial @ A @ Dspecial
-    print("check step 2")
 
     """
     3. Given a transfer function phi, let ytilde_i = phi(y_i), where the y_i are the eigenvalues
@@ -48,15 +46,11 @@ def kernel(X, k=0, kernel="linear", n=0):
     elif kernel == "polyStep":
         Ltilde = polyStep(L, n)
 
-    print("check step 3")
-
     """
     4. Let Dtilde be a diagonal matrix with Dtilde_ii = 1 / Ltilde_ii and compute Ktilde = Dtilde^(1/2) LiJ1/2. 
     """
     Dtilde = np.diag(1 / np.diag(Ltilde))
     Ktilde = (Dtilde ** (0.5)) @ Ltilde @ (Dtilde ** (0.5))
-
-    print("check step 4")
     return Ktilde
 
 
@@ -69,7 +63,6 @@ Can be of 4 different types:
 """
 def linear(L):
     Ltilde = L
-    print("Linear complete")
     return Ltilde
 
 def step(L, k):
@@ -78,7 +71,6 @@ def step(L, k):
     ycut = Y[Y.argsort()[-k]]
     Ytilde = [1 if y >= ycut else 0 for y in Y]
     Ltilde = U @ np.diag(Ytilde) @ np.transpose(U)
-    print("Step complete")
     return Ltilde
 
 def linearStep(L, k):
@@ -87,12 +79,10 @@ def linearStep(L, k):
     ycut = Y[Y.argsort()[-k]]
     Ytilde = [y if y >= ycut else 0 for y in Y]
     Ltilde = U @ np.diag(Ytilde) @ np.transpose(U)
-    print("Linear-step complete")
     return Ltilde
 
 def polynomial(L):
     Ltilde = np.linalg.matrix_power(L, t)  # Should be as fast as **
-    print("Polynomial complete")
     return Ltilde
 
 def polyStep(L, n):
@@ -103,5 +93,4 @@ def polyStep(L, n):
         Ytilde.append((Y[i] ** 0.5) if (i <= n+10) else (Y[i] ** 2))
     #Ytilde = [(y ** 0.5) if (i <= n+10) else (y ** 2) for y in Y]
     Ltilde = U @ np.diag(Ytilde) @ np.transpose(U)
-    print("Polynomial-step complete")
     return Ltilde
