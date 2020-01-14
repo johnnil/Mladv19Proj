@@ -187,8 +187,14 @@ def experemint_2(l=8):
 
     tSVM.fit(X, labels)
 
+
     acc_mean = tSVM.score(x_test, y_test)
-    print(f'accuracy = {acc_mean * 100}% ()')
+
+    print(f'accuracy = {acc_mean * 100}% () tSVM')
+
+    acc_mean = random_walk.random_walk(x_labeled, x_unlabeled, x_test, labels, y_test)
+
+    print(f'accuracy = {acc_mean * 100}% () Random Walk')
 
 if __name__ == '__main__':
     # Choose kernel
@@ -197,9 +203,9 @@ if __name__ == '__main__':
     kernel3 = lambda x: cluster_kernel.kernel(x, 10, "polynomial", 16)
     kernel4 = lambda x: cluster_kernel.kernel(x, 10, "step", 16)
     kernel5 = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
-    acc_mean, acc_std = perform_test(kernel1)
-    print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')
-    label_experiment([kernel1, kernel2, kernel3, kernel4, kernel5], names=["Clustered_kernel","linear","polynomial","step","ploystep"])
+    #acc_mean, acc_std = perform_test(kernel1)
+    #print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')
+    #label_experiment([kernel1, kernel2, kernel3, kernel4, kernel5], names=["Clustered_kernel","linear","polynomial","step","ploystep"])
     #label_experiment([kernel1], names=["Clustered_kernel","linear","polynomial","step","ploystep"])
-
+    experemint_2(l = 8)
 
