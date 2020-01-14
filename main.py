@@ -4,6 +4,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.svm import SVC
+from sklearn.semi_supervised import LabelPropagation
 from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -163,6 +164,31 @@ def label_experiment(kernels, names=None):
 
     plt.legend()
     plt.show()
+
+def experemint_2(l=8):
+
+    # Experiment comparing random walk, tSVM, SVM and our cluster kernel:
+    tSVM = LabelPropagation()
+
+    np.random.seed(424242)  # reproducibility
+    x_mac, x_win, y_mac, y_win = get_data()
+    x_test = np.vstack((x_mac[-500:], x_win[-500:]))
+    y_test = np.hstack((0.0 * y_mac[-500:], y_win[-500:]))
+    x_mac, x_win, y_mac, y_win = x_mac[:-500], x_win[:-500], y_mac[:-500], y_win[:-500]
+    y_mac[:,...] = 0.0 # change -1 to zero
+    x_labeled = np.vstack((x_mac[:l], x_win[:l]))
+    x_unlabeled = np.vstack((x_mac[l:], x_win[l:]))
+
+    X = np.vstack((x_labeled, x_unlabeled))
+    y_labeled = np.hstack((y_mac[:l], y_win[:l]))
+    y_unlabeled = np.hstack((y_mac[l:], y_win[l:]))
+    y_unlabeled[:,...] = -1.0 # Set unlabeled points
+    labels = np.hstack((y_labeled, y_unlabeled))
+
+    tSVM.fit(X, labels)
+
+    acc_mean = tSVM.score(x_test, y_test)
+    print(f'accuracy = {acc_mean * 100}% ()')
 
 if __name__ == '__main__':
     # Choose kernel
