@@ -105,8 +105,8 @@ def perform_test(kernel):
         x_unlabeled = np.vstack((x_mac[l:], x_win[l:]))
         y_labeled = np.hstack((y_mac[:l], y_win[:l]))
 
-        acc[test] = evaluate_kernel(x_labeled, x_unlabeled,x_test, y_labeled, y_test, kernel)
-        # acc[test] = random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
+        # acc[test] = evaluate_kernel(x_labeled, x_unlabeled,x_test, y_labeled, y_test, kernel)
+        acc[test] = random_walk.random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
     acc = np.array(acc)
     return acc.mean(), acc.std()
 
