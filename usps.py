@@ -25,9 +25,9 @@ def get_data():
 
     # Partition into two sets
     x_0_4 = X[:i_breakpoint]
-    y_0_4 = y[:i_breakpoint]
+    y_0_4 = -np.ones(x_0_4.shape[0])
     x_5_9 = X[i_breakpoint:]
-    y_5_9 = y[i_breakpoint:]
+    y_5_9 = np.ones(x_5_9.shape[0])
 
     return x_0_4, x_5_9, y_0_4, y_5_9
 

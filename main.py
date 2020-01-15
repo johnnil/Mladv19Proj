@@ -136,8 +136,9 @@ def perform_test(kernel, l=8):
         y_labeled = np.hstack((y_mac[:l], y_win[:l]))
 
         #acc[test] = evaluate_kernel_2(x_labeled_i, x_test, y_labeled, y_test, k)
-        acc[test] = evaluate_kernel(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel)
-        #acc[test] = random_walk.random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
+        # acc[test] = evaluate_kernel(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel)
+        acc[test] = random_walk.random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
+        print(acc[test])
     acc = np.array(acc)
     return acc.mean(), acc.std()
 
@@ -179,13 +180,12 @@ def experemint_2(l=8):
     x_mac, x_win, y_mac, y_win = get_data()
     x_test = np.vstack((x_mac[-500:], x_win[-500:]))
     y_test = np.hstack((y_mac[-500:], y_win[-500:]))
+
     y_test_tsvm = np.hstack((0.0 * y_mac[-500:], y_win[-500:]))
     x_mac, x_win, y_mac, y_win = x_mac[:-500], x_win[:-500], y_mac[:-500], y_win[:-500]
-    y_mac_tsvm = np.zeros((y_mac.shape)) # change -1 to zero
-    x_labeled = np.vstack((x_mac[:l], x_win[:l]))
-    x_unlabeled = np.vstack((x_mac[l:], x_win[l:]))
 
-    X = np.vstack((x_labeled, x_unlabeled))
+    y_mac_tsvm = np.zeros((y_mac.shape)) # change -1 to zero
+
     y_labeled = np.hstack((y_mac[:l], y_win[:l]))
     y_labeled_tsvm = np.hstack((y_mac_tsvm[:l], y_win[:l]))
     y_unlabeled = np.hstack((y_mac[l:], y_win[l:]))
@@ -247,9 +247,9 @@ if __name__ == '__main__':
     kernel3 = lambda x: cluster_kernel.kernel(x, 10, "polynomial", 16)
     kernel4 = lambda x: cluster_kernel.kernel(x, 10, "step", 16)
     kernel5 = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
-    #acc_mean, acc_std = perform_test(kernel1)
-    #print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')
-    label_experiment([kernel2, kernel3, kernel4, kernel5], names=["Linear","Polynomial","Step","Polystep"])
+    acc_mean, acc_std = perform_test(kernel1)
+    print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')
+    #label_experiment([kernel2, kernel3, kernel4, kernel5], names=["Linear","Polynomial","Step","Polystep"])
     #label_experiment([kernel1], names=["Clustered_kernel","linear","polynomial","step","ploystep"])
     #experemint_2(l = 8)
 
