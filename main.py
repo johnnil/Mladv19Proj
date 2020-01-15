@@ -189,8 +189,8 @@ def experemint_2(l=8):
 
     # Perform tests on tSVM and Random Walk.
     # Cannot use perform test function since data is weird for both.
-    acc_tSVM = [None] * 10
-    acc_random_walk = [None] * 10
+    acc_tSVM = np.array([None] * 10)
+    acc_random_walk = np.array([None] * 10)
     for test in range(10):
         np.random.shuffle(x_mac)
         np.random.shuffle(x_win)
