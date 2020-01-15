@@ -196,6 +196,14 @@ def experemint_2(l=8):
     # Cannot use perform test function since data is weird for both.
     acc_tSVM = np.array([None] * 10)
     acc_random_walk = np.array([None] * 10)
+    acc_polyStep = np.array([None] * 10)
+    acc_linear = np.array([None] * 10)
+
+    kernel1 = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
+    #mean_cluster, std_cluster = perform_test(kernel1, l)
+    kernel2 = lambda x: cluster_kernel.kernel(x, 10, "linear", 16)
+    #mean_normal, std_normal = perform_test(kernel2, l)
+
     for test in range(10):
         np.random.shuffle(x_mac)
         np.random.shuffle(x_win)
@@ -213,16 +221,23 @@ def experemint_2(l=8):
         acc_random_walk[test] = random_walk.random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
         print(f'accuracy = {acc_random_walk[test] * 100}% () Random Walk')
 
+        acc_polyStep[test] = evaluate_kernel(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel1)
+        print(f'accuracy = {acc_polyStep[test] * 100}% () Poly Step')
+
+        acc_linear[test] = evaluate_kernel_SVM(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel2)
+        print(f'accuracy = {acc_linear[test] * 100}% () Linear')
+
         # acc[test] = evaluate_kernel_2(x_labeled_i, x_test, y_labeled, y_test, k)
         #acc[test] = evaluate_kernel(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel)
         # acc[test] = random_walk.random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
 
     #use perform test function on "normal" SVM & cluster kernel
-    kernel1 = lambda x: clustered_representation.kernel(x, 10)
-    mean_cluster, std_cluster = perform_test(kernel1, l)
+
+
+    print(f'normal SVM: accuracy = {acc_linear.mean() * 100}% (±{acc_linear.std() * 100:.2})')
     print(f'tSVM: accuracy = {acc_tSVM.mean() * 100}% (±{acc_tSVM.std() * 100:.2})')
     print(f'random walk: accuracy = {acc_random_walk.mean() * 100}% (±{acc_random_walk.std() * 100:.2})')
-    print(f'Cluster kernel: accuracy = {mean_cluster * 100}% (±{std_cluster * 100:.2})')
+    print(f'Cluster kernel: accuracy = {acc_polyStep.mean() * 100}% (±{acc_polyStep.std() * 100:.2})')
 
 
 if __name__ == '__main__':
