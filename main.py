@@ -168,7 +168,7 @@ def label_experiment(kernels, names=None):
 def experemint_2(l=8):
 
     # Experiment comparing random walk, tSVM, SVM and our cluster kernel:
-    tSVM = LabelPropagation()
+    tSVM = LabelPropagation(max_iter=5000)
 
     np.random.seed(424242)  # reproducibility
     x_mac, x_win, y_mac, y_win = get_data()
@@ -187,16 +187,38 @@ def experemint_2(l=8):
     y_unlabeled_tsvm = -np.ones((y_unlabeled.shape)) # Set unlabeled points
     labels_tsvm = np.hstack((y_labeled_tsvm, y_unlabeled_tsvm))
 
-    tSVM.fit(X, labels_tsvm)
+    # Perform tests on tSVM and Random Walk.
+    # Cannot use perform test function since data is weird for both.
+    acc_tSVM = [None] * 10
+    acc_random_walk = [None] * 10
+    for test in range(10):
+        np.random.shuffle(x_mac)
+        np.random.shuffle(x_win)
+        x_labeled = np.vstack((x_mac[:l], x_win[:l]))
+        x_unlabeled = np.vstack((x_mac[l:], x_win[l:]))
 
+        y_labeled = np.hstack((y_mac[:l], y_win[:l]))
+        X = np.vstack((x_labeled, x_unlabeled))
 
-    acc_mean = tSVM.score(x_test, y_test_tsvm)
+        tSVM.fit(X, labels_tsvm)
 
-    print(f'accuracy = {acc_mean * 100}% () tSVM')
+        acc_tSVM[test] = tSVM.score(x_test, y_test_tsvm)
+        print(f'accuracy = {acc_tSVM[test] * 100}% () tSVM')
 
-    acc_mean = random_walk.random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
+        acc_random_walk[test] = random_walk.random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
+        print(f'accuracy = {acc_random_walk[test] * 100}% () Random Walk')
 
-    print(f'accuracy = {acc_mean * 100}% () Random Walk')
+        # acc[test] = evaluate_kernel_2(x_labeled_i, x_test, y_labeled, y_test, k)
+        #acc[test] = evaluate_kernel(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel)
+        # acc[test] = random_walk.random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
+
+    #use perform test function on "normal" SVM & cluster kernel
+    kernel1 = lambda x: clustered_representation.kernel(x, 10)
+    mean_cluster, std_cluster = perform_test(kernel1, l)
+    print(f'tSVM: accuracy = {acc_tSVM.mean() * 100}% (±{acc_tSVM.std() * 100:.2})')
+    print(f'random walk: accuracy = {acc_random_walk.mean() * 100}% (±{acc_random_walk.std() * 100:.2})')
+    print(f'Cluster kernel: accuracy = {mean_cluster * 100}% (±{std_cluster * 100:.2})')
+
 
 if __name__ == '__main__':
     # Choose kernel
