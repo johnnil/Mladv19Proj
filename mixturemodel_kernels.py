@@ -29,9 +29,9 @@ def marginalized_kernel(x, k=2):
 
     kxy = 0.0
     for i in range(k):
-        test1 = multivariate_normal.pdf(x, mean=est_means[i], cov=est_var[i])
-        test2 = multivariate_normal.pdf(y, mean=est_means[i], cov=est_var[i])
-        test3 = (x @ np.linalg.inv(est_var[i]) @ y.T)
+        #test1 = multivariate_normal.pdf(x, mean=est_means[i], cov=est_var[i])
+        #test2 = multivariate_normal.pdf(y, mean=est_means[i], cov=est_var[i])
+        #test3 = (x @ np.linalg.inv(est_var[i]) @ y.T)
         kxy = kxy + est_weights[i] * (multivariate_normal.pdf(x, mean=est_means[i], cov=est_var[i])[:, None]\
                                     @ multivariate_normal.pdf(y, mean=est_means[i], cov=est_var[i])[:, None].T)\
                                     * (x @ np.linalg.inv(est_var[i]) @ y.T)

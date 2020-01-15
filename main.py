@@ -250,14 +250,16 @@ def usps_test(l=20):
     #l = 20 # 40 labeled data for each run.
 
     kernel_gauss = lambda x : mixturemodel_kernels.marginalized_kernel(x, k=10)
-    kernel_cluster = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
-    kernel_standard = lambda x: cluster_kernel.kernel(x, 10, "linear", 16) #use with evaluate_SVM
+    kernel_cluster = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16, gamma=5)
+    kernel_standard = lambda x: cluster_kernel.kernel(x, 10, "linear", 16, gamma=5) #use with evaluate_SVM
 
-    acc_labelProp = np.array([None] * 100)
-    acc_gauss= np.array([None] * 100)
-    acc_polyStep = np.array([None] * 100)
-    acc_linear = np.array([None] * 100)
-    for test in range(100):  #100 runs
+    acc_labelProp = np.array([None] * 50)
+    acc_gauss= np.array([None] * 50)
+    acc_polyStep = np.array([None] * 50)
+    acc_linear = np.array([None] * 50)
+    acc_random_walk = np.array([None] * 50)
+    for test in range(50):  #50 runs
+        print(test)
         np.random.shuffle(x_0_4)
         np.random.shuffle(x_5_9)
         x_labeled = np.vstack((x_0_4[:l], x_5_9[:l]))
@@ -269,24 +271,31 @@ def usps_test(l=20):
         #acc_labelProp[test] = evaluate_kernel(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel_gauss)
         acc_polyStep[test] = evaluate_kernel(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel_cluster)
         acc_linear[test] = evaluate_kernel_SVM(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel_standard)
+        acc_random_walk[test] = random_walk.random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test, sigma=5)
+        print(f'accuracy = {acc_random_walk[test] * 100}% () Random Walk')
+        print(f'accuracy = {acc_gauss[test] * 100}% () Marginalized kernel Walk')
+        print(f'accuracy = {acc_polyStep[test] * 100}% () Polystep Walk')
+        print(f'accuracy = {acc_linear[test] * 100}% () Linear Walk')
         #print(acc[test])
 
         # shuffle targets as well
     print(f'Marginalized Kernel: accuracy = {acc_gauss.mean() * 100}% (±{acc_gauss.std() * 100:.2})')
-
+    print(f'PolyStep: accuracy = {acc_polyStep.mean() * 100}% (±{acc_polyStep.std() * 100:.2})')
+    print(f'Linear: accuracy = {acc_linear.mean() * 100}% (±{acc_linear.std() * 100:.2})')
+    print(f'Random Walk: accuracy = {acc_random_walk.mean() * 100}% (±{acc_random_walk.std() * 100:.2})')
 
 
 if __name__ == '__main__':
     # Choose kernel
-    kernel1 = lambda x: clustered_representation.kernel(x, 10)
-    kernel2 = lambda x: cluster_kernel.kernel(x, 10, "linear", 16)
-    kernel3 = lambda x: cluster_kernel.kernel(x, 10, "polynomial", 16)
-    kernel4 = lambda x: cluster_kernel.kernel(x, 10, "step", 16)
-    kernel5 = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
+    #kernel1 = lambda x: clustered_representation.kernel(x, 10)
+    #kernel2 = lambda x: cluster_kernel.kernel(x, 10, "linear", 16)
+    #kernel3 = lambda x: cluster_kernel.kernel(x, 10, "polynomial", 16)
+    #kernel4 = lambda x: cluster_kernel.kernel(x, 10, "step", 16)
+    #kernel5 = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
 
-    kernel_gauss = lambda x : mixturemodel_kernels.marginalized_kernel(x, 10)
-    acc_mean, acc_std = perform_test(kernel1)
-    print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')
+    #kernel_gauss = lambda x : mixturemodel_kernels.marginalized_kernel(x, 10)
+    #acc_mean, acc_std = perform_test(kernel1)
+    #print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')
     #label_experiment([kernel2, kernel3, kernel4, kernel5], names=["Linear","Polynomial","Step","Polystep"])
     #label_experiment([kernel1], names=["Clustered_kernel","linear","polynomial","step","ploystep"])
     #experemint_2(l = 8)
