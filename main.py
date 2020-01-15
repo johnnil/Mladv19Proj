@@ -109,7 +109,7 @@ def perform_test(kernel, l=8):
     :param l : number of labels to use
     :return: accuracy of the model
     """
-    np.random.seed(42)  # reproducibility
+    np.random.seed(424242)  # reproducibility
     x_mac, x_win, y_mac, y_win = get_data()
     x_test = np.vstack((x_mac[-500:], x_win[-500:]))
     y_test = np.hstack((y_mac[-500:], y_win[-500:]))
@@ -136,9 +136,8 @@ def perform_test(kernel, l=8):
         y_labeled = np.hstack((y_mac[:l], y_win[:l]))
 
         #acc[test] = evaluate_kernel_2(x_labeled_i, x_test, y_labeled, y_test, k)
-        # acc[test] = evaluate_kernel(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel)
-        acc[test] = random_walk.random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
-        print(acc[test])
+        acc[test] = evaluate_kernel(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel)
+        #acc[test] = random_walk.random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
     acc = np.array(acc)
     return acc.mean(), acc.std()
 
@@ -176,35 +175,36 @@ def experemint_2(l=8):
     # Experiment comparing random walk, tSVM, SVM and our cluster kernel:
     tSVM = LabelPropagation(max_iter=5000)
 
-    np.random.seed(424242)  # reproducibility
+    np.random.seed(133769)  # reproducibility
     x_mac, x_win, y_mac, y_win = get_data()
     x_test = np.vstack((x_mac[-500:], x_win[-500:]))
     y_test = np.hstack((y_mac[-500:], y_win[-500:]))
 
     y_test_tsvm = np.hstack((0.0 * y_mac[-500:], y_win[-500:]))
+
     x_mac, x_win, y_mac, y_win = x_mac[:-500], x_win[:-500], y_mac[:-500], y_win[:-500]
 
     y_mac_tsvm = np.zeros((y_mac.shape)) # change -1 to zero
 
+    x_labeled = np.vstack((x_mac[:l], x_win[:l]))
+    x_unlabeled = np.vstack((x_mac[l:], x_win[l:]))
+
+    X = np.vstack((x_labeled, x_unlabeled))
     y_labeled = np.hstack((y_mac[:l], y_win[:l]))
     y_labeled_tsvm = np.hstack((y_mac_tsvm[:l], y_win[:l]))
     y_unlabeled = np.hstack((y_mac[l:], y_win[l:]))
     y_unlabeled_tsvm = -np.ones((y_unlabeled.shape)) # Set unlabeled points
     labels_tsvm = np.hstack((y_labeled_tsvm, y_unlabeled_tsvm))
 
-    # Perform tests on tSVM and Random Walk.
-    # Cannot use perform test function since data is weird for both.
     acc_tSVM = np.array([None] * 10)
     acc_random_walk = np.array([None] * 10)
     acc_polyStep = np.array([None] * 10)
     acc_linear = np.array([None] * 10)
 
     kernel1 = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
-    #mean_cluster, std_cluster = perform_test(kernel1, l)
     kernel2 = lambda x: cluster_kernel.kernel(x, 10, "linear", 16)
-    #mean_normal, std_normal = perform_test(kernel2, l)
 
-    for test in range(10):
+    for test in range(100):
         np.random.shuffle(x_mac)
         np.random.shuffle(x_win)
         x_labeled = np.vstack((x_mac[:l], x_win[:l]))
@@ -231,13 +231,37 @@ def experemint_2(l=8):
         #acc[test] = evaluate_kernel(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel)
         # acc[test] = random_walk.random_walk(x_labeled, x_unlabeled, x_test, y_labeled, y_test)
 
-    #use perform test function on "normal" SVM & cluster kernel
-
-
     print(f'normal SVM: accuracy = {acc_linear.mean() * 100}% (±{acc_linear.std() * 100:.2})')
     print(f'tSVM: accuracy = {acc_tSVM.mean() * 100}% (±{acc_tSVM.std() * 100:.2})')
     print(f'random walk: accuracy = {acc_random_walk.mean() * 100}% (±{acc_random_walk.std() * 100:.2})')
     print(f'Cluster kernel: accuracy = {acc_polyStep.mean() * 100}% (±{acc_polyStep.std() * 100:.2})')
+
+
+def usps_test(l=20):
+
+    x_0_4, x_5_9, y_0_4, y_5_9 = usps.get_data() #Get usps data
+
+    y_test = np.hstack((y_0_4[l:], y_5_9[l:]))
+    #y_test = np.hstack((y_mac[-500:], y_win[-500:]))
+
+    y_labeled = np.hstack((y_0_4[:l], y_5_9[:l]))
+    #l = 20 # 40 labeled data for each run.
+
+    for test in range(10):  #10 runs
+        i = np.random.permutation(x_0_4.shape[0])# shuffle x_0_4
+        j = np.random.permutation(x_5_9.shape[0])# shuffle x_5_9
+        x_0_4 = x_0_4[i]
+        x_5_9 = x_5_9[j]
+        x_labeled = np.vstack((x_0_4[:l], x_5_9[:l]))
+        x_unlabeled = np.vstack((x_0_4[l:], x_5_9[l:]))
+
+        y_labeled = np.hstack((y_0_4[:l], y_5_9[:l]))
+
+        # shuffle targets as well
+
+
+    return 0
+
 
 
 if __name__ == '__main__':
@@ -247,9 +271,9 @@ if __name__ == '__main__':
     kernel3 = lambda x: cluster_kernel.kernel(x, 10, "polynomial", 16)
     kernel4 = lambda x: cluster_kernel.kernel(x, 10, "step", 16)
     kernel5 = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
-    acc_mean, acc_std = perform_test(kernel1)
-    print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')
+    #acc_mean, acc_std = perform_test(kernel1)
+    #print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')
     #label_experiment([kernel2, kernel3, kernel4, kernel5], names=["Linear","Polynomial","Step","Polystep"])
     #label_experiment([kernel1], names=["Clustered_kernel","linear","polynomial","step","ploystep"])
-    #experemint_2(l = 8)
+    experemint_2(l = 8)
 

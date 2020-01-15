@@ -19,7 +19,7 @@ def RVC(K, t):
         # Not possible to find analytical posterior, approximate using Laplace approximation
         # w_star is the posterior mean, sigma the posterior covariance
         A = np.diag(alpha)
-        B = np.diag([y_n(1 - y_n) for y_n in y])
+        B = np.diag([y_n * (1 - y_n) for y_n in y])
         w_star = np.linalg.inv(A) @ K.T @ (t - y)
         sigma = np.linalg.inv(K.T @ B @ K + A)
 

@@ -3,6 +3,7 @@ import numpy as np
 import gaussian_mixture
 from scipy.stats import multivariate_normal
 from sklearn.cluster import KMeans
+from sklearn.mixture import GaussianMixture
 
 def fisher_kernel():
     return 0
@@ -18,7 +19,12 @@ def marginalized_kernel(x, k=2):
     # Check what posterior.var() dimensions are and that they are correct with a test case
     # kxy = np.sum(posterior.pdf(x) * posterior.pdf(y) * x.T * posterior.var() * y, axis=-1)
 
-    est_means, est_var, est_weights = em_gaussian_mix(x, k) #Run em-algorithm
+    #est_means, est_var, est_weights = em_gaussian_mix(x, k) #Run em-algorithm
+    gmm = GaussianMixture(n_components=k, covariance_type='diag', reg_covar=0.01, max_iter=30)
+    gmm.fit(x)
+    est_means = gmm.means_
+    est_var = gmm.covariances__
+    est_weights = gmm.weights_
 
     kxy = 0.0
     for i in range(k):
