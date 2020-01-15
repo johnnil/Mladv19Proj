@@ -155,14 +155,18 @@ def label_experiment(kernels, names=None):
 
     for i, kernel in enumerate(kernels):
         #Run experiment with different number of label
+        print(names[i])
         for j, l in enumerate(num_l):
+            print("Labeled points: " + str(l))
             mean_tmp, std_tmp = perform_test(kernel, l)
             acc_means[i][j] = mean_tmp
             acc_stds[i][j] = std_tmp
             print(f'accuracy = {mean_tmp * 100}% (±{std_tmp * 100:.2})')
-        plt.plot(num_l, acc_means[i, :], label=names[i])
+        
+        plt.semilogx(num_l, acc_means[i, :], label=names[i])
 
     plt.legend()
+    plt.savefig('kernelsaccuracy.png')
     plt.show()
 
 def experemint_2(l=8):
@@ -207,7 +211,7 @@ if __name__ == '__main__':
     kernel5 = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
     #acc_mean, acc_std = perform_test(kernel1)
     #print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')
-    #label_experiment([kernel1, kernel2, kernel3, kernel4, kernel5], names=["Clustered_kernel","linear","polynomial","step","ploystep"])
+    label_experiment([kernel2, kernel3, kernel4, kernel5], names=["Linear","Polynomial","Step","Polystep"])
     #label_experiment([kernel1], names=["Clustered_kernel","linear","polynomial","step","ploystep"])
-    experemint_2(l = 8)
+    #experemint_2(l = 8)
 
