@@ -12,6 +12,7 @@ import cluster_kernel
 import clustered_representation
 import random_walk
 import usps
+import mixturemodel_kernels
 
 
 def evaluate_kernel(x_labeled, x_unlabeled, x_test, y, y_test, kernel):
@@ -196,10 +197,10 @@ def experemint_2(l=8):
     y_unlabeled_tsvm = -np.ones((y_unlabeled.shape)) # Set unlabeled points
     labels_tsvm = np.hstack((y_labeled_tsvm, y_unlabeled_tsvm))
 
-    acc_tSVM = np.array([None] * 10)
-    acc_random_walk = np.array([None] * 10)
-    acc_polyStep = np.array([None] * 10)
-    acc_linear = np.array([None] * 10)
+    acc_tSVM = np.array([None] * 100)
+    acc_random_walk = np.array([None] * 100)
+    acc_polyStep = np.array([None] * 100)
+    acc_linear = np.array([None] * 100)
 
     kernel1 = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
     kernel2 = lambda x: cluster_kernel.kernel(x, 10, "linear", 16)
@@ -242,25 +243,36 @@ def usps_test(l=20):
     x_0_4, x_5_9, y_0_4, y_5_9 = usps.get_data() #Get usps data
 
     y_test = np.hstack((y_0_4[l:], y_5_9[l:]))
+    x_test = np.vstack((x_0_4[l:], x_5_9[l:]))
     #y_test = np.hstack((y_mac[-500:], y_win[-500:]))
 
     y_labeled = np.hstack((y_0_4[:l], y_5_9[:l]))
     #l = 20 # 40 labeled data for each run.
 
-    for test in range(10):  #10 runs
-        i = np.random.permutation(x_0_4.shape[0])# shuffle x_0_4
-        j = np.random.permutation(x_5_9.shape[0])# shuffle x_5_9
-        x_0_4 = x_0_4[i]
-        x_5_9 = x_5_9[j]
+    kernel_gauss = lambda x : mixturemodel_kernels.marginalized_kernel(x, k=10)
+    kernel_cluster = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
+    kernel_standard = lambda x: cluster_kernel.kernel(x, 10, "linear", 16) #use with evaluate_SVM
+
+    acc_labelProp = np.array([None] * 100)
+    acc_gauss= np.array([None] * 100)
+    acc_polyStep = np.array([None] * 100)
+    acc_linear = np.array([None] * 100)
+    for test in range(100):  #100 runs
+        np.random.shuffle(x_0_4)
+        np.random.shuffle(x_5_9)
         x_labeled = np.vstack((x_0_4[:l], x_5_9[:l]))
         x_unlabeled = np.vstack((x_0_4[l:], x_5_9[l:]))
 
-        y_labeled = np.hstack((y_0_4[:l], y_5_9[:l]))
+        #y_labeled = np.hstack((y_0_4[:l], y_5_9[:l]))
+
+        acc_gauss[test] = evaluate_kernel(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel_gauss)
+        #acc_labelProp[test] = evaluate_kernel(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel_gauss)
+        acc_polyStep[test] = evaluate_kernel(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel_cluster)
+        acc_linear[test] = evaluate_kernel_SVM(x_labeled, x_unlabeled, x_test, y_labeled, y_test, kernel_standard)
+        #print(acc[test])
 
         # shuffle targets as well
-
-
-    return 0
+    print(f'Marginalized Kernel: accuracy = {acc_gauss.mean() * 100}% (±{acc_gauss.std() * 100:.2})')
 
 
 
@@ -271,9 +283,12 @@ if __name__ == '__main__':
     kernel3 = lambda x: cluster_kernel.kernel(x, 10, "polynomial", 16)
     kernel4 = lambda x: cluster_kernel.kernel(x, 10, "step", 16)
     kernel5 = lambda x: cluster_kernel.kernel(x, 10, "polyStep", 16)
-    #acc_mean, acc_std = perform_test(kernel1)
-    #print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')
+
+    kernel_gauss = lambda x : mixturemodel_kernels.marginalized_kernel(x, 10)
+    acc_mean, acc_std = perform_test(kernel1)
+    print(f'accuracy = {acc_mean * 100}% (±{acc_std * 100:.2})')
     #label_experiment([kernel2, kernel3, kernel4, kernel5], names=["Linear","Polynomial","Step","Polystep"])
     #label_experiment([kernel1], names=["Clustered_kernel","linear","polynomial","step","ploystep"])
-    experemint_2(l = 8)
+    #experemint_2(l = 8)
+    usps_test()
 

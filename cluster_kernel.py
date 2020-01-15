@@ -12,14 +12,14 @@ from sklearn.metrics.pairwise import rbf_kernel
 t = 5  #1-5
 
 
-def kernel(X, k=0, kernel="linear", n=0):
+def kernel(X, k=0, kernel="linear", n=0, gamma=0.55):
     """
     1. As before, compute the RBF matrix K from both labeled and unlabeled
     points (this time with 1 on the diagonal and not 0) and D, the diagonal
     matrix whose elements are the sum of the rows of K.
     """
     # Affinity matrix using RBF kernel
-    A = rbf_kernel(X, gamma=0.55)
+    A = rbf_kernel(X, gamma=gamma)
     # Let D be a diagonal matrix with diagonal elements equal to the sum of the rows (or the columns)
     D = np.diag(A.sum(axis=1))
 

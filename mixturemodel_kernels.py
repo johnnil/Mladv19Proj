@@ -20,11 +20,12 @@ def marginalized_kernel(x, k=2):
     # kxy = np.sum(posterior.pdf(x) * posterior.pdf(y) * x.T * posterior.var() * y, axis=-1)
 
     #est_means, est_var, est_weights = em_gaussian_mix(x, k) #Run em-algorithm
-    gmm = GaussianMixture(n_components=k, covariance_type='diag', reg_covar=0.01, max_iter=30)
+    gmm = GaussianMixture(n_components=k, covariance_type='full', reg_covar=0.01, max_iter=30)
     gmm.fit(x)
     est_means = gmm.means_
-    est_var = gmm.covariances__
+    est_var = gmm.covariances_
     est_weights = gmm.weights_
+    print("Finished EM!")
 
     kxy = 0.0
     for i in range(k):
