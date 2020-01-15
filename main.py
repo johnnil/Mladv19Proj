@@ -11,6 +11,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import cluster_kernel
 import clustered_representation
 import random_walk
+import usps
 
 
 def evaluate_kernel(x_labeled, x_unlabeled, x_test, y, y_test, kernel):
