@@ -109,7 +109,7 @@ def perform_test(kernel, l=8):
     :param l : number of labels to use
     :return: accuracy of the model
     """
-    np.random.seed(424242)  # reproducibility
+    np.random.seed(42)  # reproducibility
     x_mac, x_win, y_mac, y_win = get_data()
     x_test = np.vstack((x_mac[-500:], x_win[-500:]))
     y_test = np.hstack((y_mac[-500:], y_win[-500:]))

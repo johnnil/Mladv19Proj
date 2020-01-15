@@ -1,7 +1,7 @@
 import numpy as np
 import h5py
 
-def get_data():
+def get_data(number_of_points=1000):
     # Load digits
     with h5py.File('usps.h5', 'r') as hf:
         train = hf.get('train')
@@ -29,7 +29,7 @@ def get_data():
     x_5_9 = X[i_breakpoint:]
     y_5_9 = np.ones(x_5_9.shape[0])
 
-    return x_0_4, x_5_9, y_0_4, y_5_9
+    return x_0_4[:number_of_points], x_5_9[:number_of_points], y_0_4[:number_of_points], y_5_9[:number_of_points]
 
 def get_breakpoint(l, val):
     for i, x in enumerate(l):
