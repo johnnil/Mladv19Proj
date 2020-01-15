@@ -1,0 +1,4 @@
+%normal SVM: accuracy = 77.128% (±4.1)
+%Labelpropagation: accuracy = 68.400% (±8.5)
+%random walk: accuracy = 83.493% (±10)
+%Cluster kernel: accuracy = 75.592% (±7.7)
