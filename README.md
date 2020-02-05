@@ -1,2 +1,2 @@
 # Mladv19Proj
-A project
+Reproducing a study of kernel functions.
